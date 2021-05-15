@@ -1,10 +1,54 @@
-const low = require('lowdb');
-const path = require('path');
-const FileSync = require('lowdb/adapters/FileSync');
+const mongoose = require('mongoose');
 
-const adapter = new FileSync(path.join(__dirname, 'contacts.json'));
-const db = low(adapter);
+require('dotenv').config();
+const uriDb = process.env.URI_DB;
 
-db.defaults({ contacts: [] }).write();
+const db = mongoose.connect(uriDb, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+  poolSize: 5,
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('Database connection successful');
+});
+
+mongoose.connection.on('error', error => {
+  console.log(`Mongoose connection error: ${error.message}`);
+  process.exit(1);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log(`Mongoose disconnected`);
+});
+
+process.on('SIGINT', async () => {
+  mongoose.connection.close(() => {
+    console.log('Disconnect DB');
+    process.exit();
+  });
+});
 
 module.exports = db;
+
+// MongoDB
+// const { MongoClient } = require('mongodb');
+// require('dotenv').config();
+// const uriDb = process.env.URI_DB;
+
+// const db = MongoClient.connect(uriDb, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+//   poolSize: 5,
+// });
+
+// process.on('SIGINT', async () => {
+//   const client = await db;
+//   client.close();
+//   console.log('Disconnect MongoDB');
+//   process.exit();
+// });
+
+// module.exports = db;
