@@ -7,6 +7,7 @@ const {
   validateAddContact,
   validateUpdateContact,
   validateUpdateStatusContact,
+  validateId,
 } = require('../../validation/contacts');
 
 router.get('/', async (_req, res, next) => {
@@ -23,7 +24,7 @@ router.get('/', async (_req, res, next) => {
   }
 });
 
-router.get('/:contactId', async (req, res, next) => {
+router.get('/:contactId', validateId, async (req, res, next) => {
   try {
     const contact = await contactsModel.getContactById(req.params.contactId);
 
@@ -58,7 +59,7 @@ router.post('/', validateAddContact, async (req, res, next) => {
   }
 });
 
-router.delete('/:contactId', async (req, res, next) => {
+router.delete('/:contactId', validateId, async (req, res, next) => {
   try {
     const contact = await contactsModel.removeContact(req.params.contactId);
 
@@ -80,33 +81,39 @@ router.delete('/:contactId', async (req, res, next) => {
   }
 });
 
-router.put('/:contactId', validateUpdateContact, async (req, res, next) => {
-  try {
-    const contact = await contactsModel.updateContact(
-      req.params.contactId,
-      req.body,
-    );
+router.put(
+  '/:contactId',
+  validateUpdateContact,
+  validateId,
+  async (req, res, next) => {
+    try {
+      const contact = await contactsModel.updateContact(
+        req.params.contactId,
+        req.body,
+      );
 
-    if (contact) {
-      return res.status(httpCode.OK).json({
-        status: 'success',
-        code: httpCode.OK,
-        data: { contact },
-      });
-    } else {
-      return next({
-        status: httpCode.NOT_FOUND,
-        message: 'Contact Not Found',
-      });
+      if (contact) {
+        return res.status(httpCode.OK).json({
+          status: 'success',
+          code: httpCode.OK,
+          data: { contact },
+        });
+      } else {
+        return next({
+          status: httpCode.NOT_FOUND,
+          message: 'Contact Not Found',
+        });
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 router.patch(
-  '/:contactId/important',
+  '/:contactId/favorite',
   validateUpdateStatusContact,
+  validateId,
   async (req, res, next) => {
     try {
       const contact = await contactsModel.updateContact(
