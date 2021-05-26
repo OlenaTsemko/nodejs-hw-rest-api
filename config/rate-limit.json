@@ -1,0 +1,11 @@
+{
+  "apiLimit": {
+    "windowMs": 900000,
+    "max": 100
+  },
+  "createAccountLimit": {
+    "windowMs": 3600000,
+    "max": 2
+  },
+  "jsonLimit": 15000
+}

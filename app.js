@@ -1,30 +1,39 @@
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
+const boolParser = require('express-query-boolean');
+const helmet = require('helmet');
 
-const { httpCode } = require('./helpers/constants');
+const { jsonLimit } = require('./config/rate-limit.json');
+const { limiter } = require('./helpers/limiter');
+const { HttpCode } = require('./helpers/constants');
+const usersRouter = require('./routes/api/users');
 const contactsRouter = require('./routes/api/contacts');
 
 const app = express();
 
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
+app.use(helmet()); // устанавливает дополнительные заголовки (безопасность)
+app.use(limiter); // количество запросов с одного IP
 app.use(logger(formatsLogger));
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: jsonLimit })); // лимит в байтах
+app.use(boolParser()); // приводит строку 'true' к булеану true, строку 'false' к булеану false
 
+app.use('/api/users', usersRouter);
 app.use('/api/contacts', contactsRouter);
 
 app.use((_req, res) => {
-  res.status(httpCode.NOT_FOUND).json({
+  res.status(HttpCode.NOT_FOUND).json({
     status: 'error',
-    code: httpCode.NOT_FOUND,
+    code: HttpCode.NOT_FOUND,
     message: 'Not Found',
   });
 });
 
 app.use((err, _req, res, _next) => {
-  const code = err.status || httpCode.INTERNAL_SERVER_ERROR;
+  const code = err.status || HttpCode.INTERNAL_SERVER_ERROR;
   const status = err.status ? 'error' : 'fail';
 
   res.status(code).json({
@@ -32,6 +41,6 @@ app.use((err, _req, res, _next) => {
     code,
     message: err.message,
   });
-});
+}); // все ошибки переданные в next формируются здесь
 
 module.exports = app;
