@@ -22,10 +22,21 @@ const updateUser = async (id, body) => {
   return result;
 };
 
+// статика
+// const updateAvatar = async (id, avatarUrl) => {
+//   return await User.findByIdAndUpdate(id, { avatarURL: avatarUrl });
+// };
+
+// cloudinary
+const updateAvatar = async (id, avatarUrl, userIdImg = null) => {
+  return await User.findByIdAndUpdate(id, { avatarURL: avatarUrl, userIdImg });
+};
+
 module.exports = {
   findById,
   findByEmail,
   create,
   updateToken,
   updateUser,
+  updateAvatar,
 };
