@@ -7,5 +7,6 @@
     "windowMs": 3600000,
     "max": 2
   },
-  "jsonLimit": 15000
+  "jsonLimit": 15000,
+  "fileSizeLimit": 2000000
 }

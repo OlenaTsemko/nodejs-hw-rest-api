@@ -1,8 +1,10 @@
 const express = require('express');
+const path = require('path');
 const logger = require('morgan');
 const cors = require('cors');
 const boolParser = require('express-query-boolean');
 const helmet = require('helmet');
+require('dotenv').config();
 
 const { jsonLimit } = require('./config/rate-limit.json');
 const { limiter } = require('./helpers/limiter');
@@ -15,8 +17,12 @@ const app = express();
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
 app.use(helmet()); // устанавливает дополнительные заголовки (безопасность)
+
+const AVATARS_DIR = path.join('public', process.env.AVATARS_DIR);
+app.use(express.static(path.join(__dirname, AVATARS_DIR)));
+
 app.use(limiter); // количество запросов с одного IP
-app.use(logger(formatsLogger));
+app.get('env') !== 'test' && app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json({ limit: jsonLimit })); // лимит в байтах
 app.use(boolParser()); // приводит строку 'true' к булеану true, строку 'false' к булеану false
