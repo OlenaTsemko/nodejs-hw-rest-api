@@ -1,26 +1,26 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const { Schema, model } = require('mongoose');
 const gravatar = require('gravatar');
-
+const { v4: uuid } = require('uuid');
 const bcrypt = require('bcryptjs');
-const SALT_FACTOR = 6;
 
 const { Subscription } = require('../helpers/constants');
+const SALT_FACTOR = 6;
 
 const userSchema = new Schema(
   {
-    password: {
+    name: {
       type: String,
-      required: [true, 'Password is required'],
+      minLength: 2,
+      default: 'Guest',
     },
     email: {
       type: String,
       required: [true, 'Email is required'],
       unique: true,
-      // validate(value) {
-      //   const re = /\S+@\S+\.\S+/gi;
-      //   return re.test(String(value).toLowerCase());
-      // },
+    },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
     },
     subscription: {
       type: String,
@@ -34,12 +34,21 @@ const userSchema = new Schema(
     avatarURL: {
       type: String,
       default: function () {
-        return gravatar.url(this.email, { s: 250 }, true); // true - протокол https, 250 - размер
+        return gravatar.url(this.email, { s: 250 }, true);
       },
     },
     userIdImg: {
       type: String,
       default: null,
+    },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verifyToken: {
+      type: String,
+      required: [true, 'Verify token is required'],
+      default: uuid(),
     },
   },
   {
@@ -59,12 +68,12 @@ userSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
   }
   next();
-}); // pre - вызываем перед сохранением ('save')
+});
 
 userSchema.methods.validPassword = async function (password) {
   return await bcrypt.compare(String(password), this.password);
-}; // сравниваем 2 значения или это тот же пароль
+};
 
-const User = mongoose.model('user', userSchema);
+const User = model('user', userSchema);
 
 module.exports = User;

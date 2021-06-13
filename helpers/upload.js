@@ -1,6 +1,7 @@
 const multer = require('multer');
 require('dotenv').config();
 const { fileSizeLimit } = require('../config/rate-limit.json');
+const { HttpCode } = require('../helpers/constants');
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR;
 
@@ -21,7 +22,9 @@ const upload = multer({
       cb(null, true);
       return;
     }
-    cb(null, false);
+    const error = new Error('Please upload an image');
+    error.status = HttpCode.BAD_REQUEST;
+    cb(error);
   },
 });
 

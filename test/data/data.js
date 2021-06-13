@@ -14,6 +14,7 @@ const newUser = {
 const newTestUser = {
   email: 'lena_user_test@gmail.com',
   password: 1234567,
+  verify: true,
 };
 
 module.exports = { newContact, newUser, newTestUser };
