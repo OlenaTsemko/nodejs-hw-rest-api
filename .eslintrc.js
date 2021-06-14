@@ -7,6 +7,7 @@ module.exports = {
   },
   plugins: ['jest'],
   extends: ['standard', 'plugin:json/recommended', 'prettier'],
+  parser: '@babel/eslint-parser',
   parserOptions: {
     ecmaVersion: 12,
   },

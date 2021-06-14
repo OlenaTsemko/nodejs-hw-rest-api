@@ -22,14 +22,16 @@ const updateUser = async (id, body) => {
   return result;
 };
 
-// статика
-// const updateAvatar = async (id, avatarUrl) => {
-//   return await User.findByIdAndUpdate(id, { avatarURL: avatarUrl });
-// };
-
-// cloudinary
 const updateAvatar = async (id, avatarUrl, userIdImg = null) => {
-  return await User.findByIdAndUpdate(id, { avatarURL: avatarUrl, userIdImg });
+  return await User.findByIdAndUpdate(id, { userIdImg, avatarURL: avatarUrl });
+};
+
+const getUserByVerifyToken = async token => {
+  return await User.findOne({ verifyToken: token });
+};
+
+const updateVerifyToken = async (id, verify = true, token = null) => {
+  return await User.findByIdAndUpdate(id, { verify, verifyToken: token });
 };
 
 module.exports = {
@@ -39,4 +41,6 @@ module.exports = {
   updateToken,
   updateUser,
   updateAvatar,
+  getUserByVerifyToken,
+  updateVerifyToken,
 };

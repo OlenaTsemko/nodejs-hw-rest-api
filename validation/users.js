@@ -2,6 +2,11 @@ const Joi = require('joi');
 const { HttpCode, Subscription } = require('../helpers/constants');
 
 const schemaSignupUser = Joi.object({
+  name: Joi.string()
+    .regex(/^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/)
+    .min(2)
+    .max(30)
+    .optional(),
   email: Joi.string()
     .email({
       minDomainSegments: 2,
@@ -30,6 +35,15 @@ const schemaUpdateSubscriptionUser = Joi.object({
     .required(),
 });
 
+const schemaRepeatSendVerifyEmail = Joi.object({
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net', 'ua'] },
+    })
+    .required(),
+});
+
 const validate = async (schema, body, next) => {
   try {
     await schema.validateAsync(body);
@@ -52,4 +66,8 @@ module.exports.validateLoginUser = (req, _res, next) => {
 
 module.exports.validateUpdateSubscriptionUser = (req, _res, next) => {
   return validate(schemaUpdateSubscriptionUser, req.body, next);
+};
+
+module.exports.validateRepeatSendVerifyEmail = (req, _res, next) => {
+  return validate(schemaRepeatSendVerifyEmail, req.body, next);
 };
